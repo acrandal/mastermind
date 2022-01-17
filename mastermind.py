@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 #
-#   Simple Mastermind (TM - Hasboro) Implementation
+#   Simple Mastermind (TM - Hasbro) Implementation
 #
 #   @author Aaron S. Crandall <crandall@gonzaga.edu>
 #   @copyright 2022
 #
 
-
 from random import randrange
 from time import sleep
-
 from colorama import Fore, Back, Style, init
 
+# colorama has an init() to set the terminal up
+#  this only matters for Windows systems
 init()
 
 
@@ -116,7 +116,7 @@ class TargetPegs:
 
     def getRandomPeg(self):
         pegLetters = ["R", "U", "G", "Y", "B", "W"]
-        return Peg.getPeg( pegLetters[randrange(len(pegLetters))] )
+        return Peg.getPeg(pegLetters[randrange(len(pegLetters))])
 
     def __str__(self):
         ret = ""
@@ -124,7 +124,7 @@ class TargetPegs:
             for peg in self.pegs:
                 ret += str(peg) + " "
         else:
-            ret += " " * 8
+            ret += "-SECRET-"
         ret += "  |"
         ret += Fore.WHITE
         return ret
@@ -153,6 +153,7 @@ class RightColorRightPlace:
 # ** *************************************************************************
 class Guess:
     """ A player's guess line on the board """
+
     def __init__(self, pegs: list = None, number: int = 0):
         if pegs:
             self.pegs = pegs
@@ -213,6 +214,7 @@ class Guess:
 # ** *************************************************************************
 class Mastermind:
     """ A game of Mastermind """
+
     def __init__(self):
         self.targetPegs = TargetPegs()
         self.guesses = []
@@ -221,31 +223,26 @@ class Mastermind:
 
         for i in range(self.totalGuesses):
             self.guesses.append(Guess(number=(self.totalGuesses - i)))
-        
+
         self.calculateSecretAnimation()
-
-
 
     def calculateSecretAnimation(self):
         print("Calculating my secret... it'll be tough!")
         for i in range(5):
             for j in range(3):
                 print(".", end="", flush=True)
-                sleep(.25)
+                sleep(0.25)
 
             print("\r      \r", end="")
         print("Got it! Let's go.")
         sleep(2)
-
-
-
 
     def playRound(self):
         """
         Plays a round of Mastermind (max 12 guesses)
         """
         print("Starting mastermind!")
-        print("\n"*3)
+        print("\n" * 3)
         # Add animation & awesome here
         print(self)
 
@@ -279,8 +276,12 @@ class Mastermind:
         newPegs = False
 
         while not newPegs:
-            print(F"{Fore.RED}(R)ed{Fore.WHITE} -- {Fore.BLUE}bl(U)e{Fore.WHITE} -- {Fore.GREEN}(G)reen{Fore.WHITE}")
-            print(F"{Fore.YELLOW}(Y)ellow{Fore.WHITE} -- {Fore.BLACK}(B)lack{Fore.WHITE} -- (W)hite")
+            print(
+                f"{Fore.RED}(R)ed{Fore.WHITE} -- {Fore.BLUE}bl(U)e{Fore.WHITE} -- {Fore.GREEN}(G)reen{Fore.WHITE}"
+            )
+            print(
+                f"{Fore.YELLOW}(Y)ellow{Fore.WHITE} -- {Fore.BLACK}(B)lack{Fore.WHITE} -- (W)hite"
+            )
             print("Example input: RYBU for Red Yellow Black blUe")
             userInput = input("Enter your guess: ").strip().upper()
             if userInput == "SHOW":
@@ -318,7 +319,7 @@ class Mastermind:
 
 # ** *************************************************************************
 if __name__ == "__main__":
-    print("Starting game")
+    print("Starting game - it's time for Mastermind.")
     print(Style.RESET_ALL)
 
     game = Mastermind()
