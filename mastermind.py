@@ -8,17 +8,22 @@
 
 
 from random import randrange
+from time import sleep
 
 from colorama import Fore, Back, Style, init
+
 init()
+
 
 def cls():
     """ Simple clear screen function """
-    print("\n"*80)
+    print("\n" * 80)
+
 
 # ** ******************************************************
 class Peg:
     """ Base class for all peg tokens in the game """
+
     def __init__(self) -> None:
         self.symbol = "\u2B24"
         self.background = Back.LIGHTCYAN_EX
@@ -30,9 +35,9 @@ class Peg:
 
     def __eq__(self, other):
         return self.colorName == other.colorName
-    
+
     @staticmethod
-    def getPeg(pegChar: str) -> 'Peg':
+    def getPeg(pegChar: str) -> "Peg":
         """ Static factory method to create Pegs by character name """
         if pegChar == "R":
             return RedPeg()
@@ -56,11 +61,13 @@ class RedPeg(Peg):
         self.colorName = "Red"
         self.termUnicode = Fore.RED + self.symbol
 
+
 class BluePeg(Peg):
     def __init__(self) -> None:
         super().__init__()
         self.colorName = "Blue"
         self.termUnicode = Fore.BLUE + self.symbol
+
 
 class GreenPeg(Peg):
     def __init__(self) -> None:
@@ -68,11 +75,13 @@ class GreenPeg(Peg):
         self.colorName = "Green"
         self.termUnicode = Fore.GREEN + self.symbol
 
+
 class YellowPeg(Peg):
     def __init__(self) -> None:
         super().__init__()
         self.colorName = "Yellow"
         self.termUnicode = Fore.YELLOW + self.symbol
+
 
 class BlackPeg(Peg):
     def __init__(self) -> None:
@@ -80,15 +89,12 @@ class BlackPeg(Peg):
         self.colorName = "Black"
         self.termUnicode = Fore.BLACK + self.symbol
 
+
 class WhitePeg(Peg):
     def __init__(self) -> None:
         super().__init__()
         self.colorName = "White"
         self.termUnicode = Fore.WHITE + self.symbol
-
-
-
-
 
 
 # ** *************************************************************************
@@ -101,7 +107,7 @@ class TargetPegs:
             self.pegs = []
             for i in range(4):
                 self.pegs.append(self.getRandomPeg())
-    
+
     def setRevealPegs(self):
         self.revealPegs = True
 
@@ -109,8 +115,8 @@ class TargetPegs:
         self.revealPegs = False
 
     def getRandomPeg(self):
-        tempPegs = [RedPeg(), BluePeg(), GreenPeg(), YellowPeg(), BlackPeg(), WhitePeg()]
-        return tempPegs[randrange(len(tempPegs))]
+        pegLetters = ["R", "U", "G", "Y", "B", "W"]
+        return Peg.getPeg( pegLetters[randrange(len(pegLetters))] )
 
     def __str__(self):
         ret = ""
@@ -118,7 +124,7 @@ class TargetPegs:
             for peg in self.pegs:
                 ret += str(peg) + " "
         else:
-            ret += " "*8
+            ret += " " * 8
         ret += "  |"
         ret += Fore.WHITE
         return ret
@@ -127,22 +133,27 @@ class TargetPegs:
 # ** *************************************************************************
 HINT_SYMBOL = "\u25C6"
 
+
 class RightColorWrongPlace:
     def __init__(self) -> None:
         self.termUnicode = Fore.WHITE + HINT_SYMBOL
+
     def __str__(self) -> str:
         return self.termUnicode
+
 
 class RightColorRightPlace:
     def __init__(self) -> None:
         self.termUnicode = Fore.BLACK + HINT_SYMBOL
+
     def __str__(self) -> str:
         return self.termUnicode
 
 
 # ** *************************************************************************
 class Guess:
-    def __init__(self, pegs:list = None, number:int = 0):
+    """ A player's guess line on the board """
+    def __init__(self, pegs: list = None, number: int = 0):
         if pegs:
             self.pegs = pegs
         else:
@@ -151,13 +162,10 @@ class Guess:
         self.number = number
         self.hints = []
 
-    #def getNumber(self):
-    #    return self.number
-
-    def setPegs(self, pegs:list):
+    def setPegs(self, pegs: list) -> None:
         self.pegs = pegs
 
-    def isCorrect(self):
+    def isCorrect(self) -> bool:
         if len(self.hints) != len(self.pegs):
             return False
         for hint in self.hints:
@@ -165,9 +173,8 @@ class Guess:
                 return False
         return True
 
-
-    def calcHints(self, targetPegsContainer: TargetPegs):
-        targetPegs = targetPegsContainer.pegs    # bad practice
+    def calcHints(self, targetPegsContainer: TargetPegs) -> None:
+        targetPegs = targetPegsContainer.pegs  # bad practice
 
         targetTaken = [False, False, False, False]
         guessIsUsed = [False, False, False, False]
@@ -187,15 +194,15 @@ class Guess:
                     if not targetTaken[j] and currGuessPeg == targetPegs[j]:
                         self.hints.append(RightColorWrongPlace())
                         targetTaken[j] = True
-                        break       # Check next peg guess
-    
-    def __str__(self):
+                        break  # Check next peg guess
+
+    def __str__(self) -> str:
         ret = f"{self.number:02} |  "
         if len(self.pegs) > 0:
             for peg in self.pegs:
                 ret += f"{peg} "
         else:
-            ret += " "*8
+            ret += " " * 8
         ret += Fore.WHITE + "  |  "
         for hint in self.hints:
             ret += f"{hint} "
@@ -204,7 +211,8 @@ class Guess:
 
 
 # ** *************************************************************************
-class Game:
+class Mastermind:
+    """ A game of Mastermind """
     def __init__(self):
         self.targetPegs = TargetPegs()
         self.guesses = []
@@ -213,9 +221,31 @@ class Game:
 
         for i in range(self.totalGuesses):
             self.guesses.append(Guess(number=(self.totalGuesses - i)))
+        
+        self.calculateSecretAnimation()
 
-    def play(self):
+
+
+    def calculateSecretAnimation(self):
+        print("Calculating my secret... it'll be tough!")
+        for i in range(5):
+            for j in range(3):
+                print(".", end="", flush=True)
+                sleep(.25)
+
+            print("\r      \r", end="")
+        print("Got it! Let's go.")
+        sleep(2)
+
+
+
+
+    def playRound(self):
+        """
+        Plays a round of Mastermind (max 12 guesses)
+        """
         print("Starting mastermind!")
+        print("\n"*3)
         # Add animation & awesome here
         print(self)
 
@@ -227,8 +257,7 @@ class Game:
             currGuess.calcHints(self.targetPegs)
             currGuessNum += 1
 
-            # See if it's a win
-            print(self)
+            # See if it's a win or out of guesses
             if currGuess.isCorrect():
                 self.targetPegs.setRevealPegs()
                 print(self)
@@ -239,14 +268,19 @@ class Game:
                 print(self)
                 self.isDone = True
                 print("Too bad -- Try again")
+            else:
+                print(self)
 
-
-    def getPlayerGuess(self):
+    def getPlayerGuess(self) -> list:
+        """
+        Get a player's guess from terminal
+        @return List of Pegs (none if error)
+        """
         newPegs = False
 
         while not newPegs:
-            print("(R)ed -- bl(U)e -- (G)reen")
-            print("(Y)ellow -- (B)lack -- (W)hite")
+            print(F"{Fore.RED}(R)ed{Fore.WHITE} -- {Fore.BLUE}bl(U)e{Fore.WHITE} -- {Fore.GREEN}(G)reen{Fore.WHITE}")
+            print(F"{Fore.YELLOW}(Y)ellow{Fore.WHITE} -- {Fore.BLACK}(B)lack{Fore.WHITE} -- (W)hite")
             print("Example input: RYBU for Red Yellow Black blUe")
             userInput = input("Enter your guess: ").strip().upper()
             if userInput == "SHOW":
@@ -254,9 +288,12 @@ class Game:
             newPegs = self.getPegsFromGuess(userInput)
         return newPegs
 
-
     def getPegsFromGuess(self, userInput: str) -> list:
-        validLetters = ['R', 'U', 'G', 'Y', 'B', 'W']
+        """
+        Decode a string of Pegs (user input)
+        @param userInput: string of uppercase Peg characters
+        @return list of Peg objects (none if error)
+        """
         ret = []
         for ch in userInput:
             newPeg = Peg.getPeg(ch)
@@ -266,11 +303,9 @@ class Game:
             else:
                 ret.append(newPeg)
         return ret
-                
 
-
-    def __str__(self):
-        ret = "Game State\n"
+    def __str__(self) -> str:
+        ret = ""
         ret += f"{'*'*28}\n"
         ret += f"   |  {str(self.targetPegs)}\n"
         ret += f"{'*'*28}\n"
@@ -281,15 +316,15 @@ class Game:
         return ret
 
 
+# ** *************************************************************************
 if __name__ == "__main__":
     print("Starting game")
     print(Style.RESET_ALL)
 
-    game = Game()
-    print(game)
+    game = Mastermind()
 
     try:
-        game.play()
+        game.playRound()
     except KeyboardInterrupt:
         print("\nQutting")
 
